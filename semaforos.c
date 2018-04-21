@@ -77,7 +77,7 @@ int Crear_Semaforo(key_t key, int size, int *semid){
 	unsigned short* arraySemaforos;
     int i, errno;
     
-	*semid = semget(key,size,IPC_CREAT| SHM_R | SHM_W);
+	*semid = semget(key,size, IPC_CREAT | IPC_EXCL | SHM_R | SHM_W);
 	if((*semid == -1) && (errno == EEXIST)){
 	  return 1;
 	}

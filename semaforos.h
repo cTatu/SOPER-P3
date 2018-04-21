@@ -1,5 +1,5 @@
-#ifndef VARIABLE
-#define VARIABLE
+#ifndef sems
+#define sems
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>

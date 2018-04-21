@@ -1,5 +1,5 @@
-#ifndef VARIABLE
-#define VARIABLE
+#ifndef memoria
+#define memoria
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <sys/shm.h> 
 
-void Crear_Memoria_Compartida(char* buffer, char* path, int* id_zone, int size);
+char* Crear_Memoria_Compartida(char* path, int* id_zone, int size);
 								
 int Borrar_Memoria_Compartida(char* buf, int id_zone);
 

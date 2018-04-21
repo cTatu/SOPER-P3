@@ -15,8 +15,10 @@ int main (int argc, char *argv[]) {
     
     int mutex, sePuedeLeer;
     
-    int id_zone, i, tamanioBuffer;
+    int id_zone, tamanioBuffer;
     char* buffer;
+
+    srand(time(NULL));
 
     if (argc == 1){
         printf("Introduce la longitud del buffer\n\t ej: ./ejercicio3 10\n");
@@ -29,37 +31,39 @@ int main (int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     
-    Crear_Memoria_Compartida( (void*) buffer, FILEKEY, id_zone, tamanioBuffer);
+    buffer = (char*) Crear_Memoria_Compartida(FILEKEY, &id_zone, tamanioBuffer);
     if (buffer == NULL){ 
-        perror("Error reservando memoria compartida\n");
+        perror("Error reservando memoria compartida");
         exit(EXIT_FAILURE);
     }
     
-    if (Crear_Semaforo(IPC_PRIVATE, tamanioBuffer, &mutex) == ERROR){
-        perror("Error creando el semaforo mutex\n");
+    if (Crear_Semaforo(rand(), tamanioBuffer, &mutex) == ERROR){
+        perror("Error creando el semaforo mutex");
         exit(EXIT_FAILURE);
     }
     
-    if (Crear_Semaforo(IPC_PRIVATE, tamanioBuffer, &sePuedeLeer) == ERROR){
-        perror("Error creando el semaforo sePuedeLeer\n");
+    if (Crear_Semaforo(rand(), tamanioBuffer, &sePuedeLeer) == ERROR){
+        perror("Error creando el semaforo sePuedeLeer");
         exit(EXIT_FAILURE);
     }
     
 
-    if (Borrar_Memoria_Compartida( (void*) buffer, id_zone) == ERROR){
-    	perror("Error borrando la zona de memoria compartida\n");
+    if (Borrar_Memoria_Compartida( (char*) buffer, id_zone) == ERROR){
+    	perror("Error borrando la zona de memoria compartida");
         exit(EXIT_FAILURE);
     }
 
     if (Borrar_Semaforo(mutex) == ERROR){
-    	perror("Error creando el semaforo mutex\n");
+    	perror("Error creando el semaforo mutex");
         exit(EXIT_FAILURE);
     }
 
     if (Borrar_Semaforo(sePuedeLeer) == ERROR){
-    	perror("Error creando el semaforo sePuedeLeer\n");
+    	perror("Error creando el semaforo sePuedeLeer");
         exit(EXIT_FAILURE);
     }
+
+    return 1;
     
 }
     
