@@ -73,7 +73,9 @@ Salida:
 ***************************************************************/
 int Up_Semaforo(int id, int num_sem, int undo);
 
+int UpMultiple_Semaforo(int id,int size, int undo, int *active);
 
+int DownMultiple_Semaforo(int id,int size,int undo,int *active);
 
 
 #endif
