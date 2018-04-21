@@ -54,10 +54,10 @@ Salida:
 int: OK si todo fue correcto, ERROR en caso de error.
 ***************************************************************/
 int Borrar_Semaforo(int semid){
-    if (semid < 0) {
+    if (semctl(semid, 0, IPC_RMID) < 0)
         return ERROR;
-    }
-    return semget(semid,0,IPC_RMID);
+
+	return OK;
 }
 
 /***************************************************************
@@ -115,7 +115,7 @@ int Down_Semaforo(int id, int num_sem, int undo){
         sem_oper.sem_num = num_sem; /* Actuamos sobre el semáforo 0 de la lista */
 	    sem_oper.sem_op = -1; /* Decrementar en 1 el valor del semáforo */
 	    sem_oper.sem_flg = undo; /* Para evitar interbloqueos si un proceso acaba inesperadamente */
-	    if(semop(id, &sem_oper, 1) == -1){
+	    if(semop(id, &sem_oper, 1) == ERROR){
 	        return ERROR;
 	    }
 	    return OK;
@@ -133,15 +133,39 @@ Salida:
  int: OK si todo fue correcto, ERROR en caso de error.
 ***************************************************************/
 int Up_Semaforo(int id, int num_sem, int undo){
-        struct sembuf sem_oper;
-        sem_oper.sem_num = num_sem; /* Actuamos sobre el semáforo 0 de la lista */
-	    sem_oper.sem_op = +1;       /* Decrementar en 1 el valor del semáforo */
-	    sem_oper.sem_flg = undo;    /* Para evitar interbloqueos si un proceso acaba inesperadamente */
-	    if(semop(id, &sem_oper, 1) == -1){
-	        return ERROR;
-	    }
-	    return OK;
-    }
+    struct sembuf sem_oper;
 
-    
+    sem_oper.sem_num = num_sem; /* Actuamos sobre el semáforo 0 de la lista */
+	sem_oper.sem_op = 1;       /* Decrementar en 1 el valor del semáforo */
+	sem_oper.sem_flg = undo;    /* Para evitar interbloqueos si un proceso acaba inesperadamente */
+
+	if(semop(id, &sem_oper, 1) == ERROR){
+	    return ERROR;
+	}
+	return OK;
+}
+
+int UpMultiple_Semaforo(int id,int size, int undo, int *active){    
+   	int i;
+
+	for(i = 0; i < size; i++){
+		if (active[i] == 1){
+			if(Up_Semaforo(id, i, undo) == ERROR)
+				return ERROR;
+		}
+	}
+	return OK;
+}
+
+int DownMultiple_Semaforo(int id,int size,int undo,int *active){
+	int i;
+
+	for(i = 0; i < size; i++){
+		if(active[i] == 1){
+			if(Down_Semaforo(id, i, undo) == ERROR)
+				return ERROR;
+		}
+	}
+	return OK;
+}
 
