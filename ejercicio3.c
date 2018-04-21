@@ -12,7 +12,7 @@
 
 typedef enum {padre, productor, consumidor} tipoProceso;
 
-int mutex, sePuedeLeer;
+int mutex, sePuedeLeer, sePuedeEscribir;
 char* buffer;
 int id_zone;
 
@@ -24,13 +24,21 @@ void manejadorControlC(){
     if (Borrar_Memoria_Compartida( (char*) buffer, id_zone) == ERROR)
         exit(EXIT_FAILURE);
 
+	printf("mutex: %d\n", mutex);
     if (Borrar_Semaforo(mutex) == ERROR){
     	perror("Error borrando el semaforo mutex");
         exit(EXIT_FAILURE);
     }
 
+    printf("sePuedeLeer: %d\n", sePuedeLeer);
     if (Borrar_Semaforo(sePuedeLeer) == ERROR){
     	perror("Error borrando el semaforo sePuedeLeer");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("sePuedeEscribir: %d\n", sePuedeEscribir);
+    if (Borrar_Semaforo(sePuedeEscribir) == ERROR){
+    	perror("Error borrando el semaforo sePuedeEscribir");
         exit(EXIT_FAILURE);
     }
 
@@ -46,14 +54,11 @@ int main (int argc, char *argv[]) {
 
     srand(time(NULL));
 
-    union semun{
-        int val;
-        struct semid_ds* semstats;
-        unsigned short* array;
-    } arg;
-
-    if (argc == 1){
-        printf("Introduce la longitud del buffer\n\t ej: ./ejercicio3 10\n");
+    if (argc != 3){
+        printf("Introduce la longitud del buffer y que proceso quieres que empiece primero\n\t ej: ./ejercicio3 10 p\n\t ej: ./ejercicio3 10 c\n");
+        exit(EXIT_FAILURE);
+    }if (*argv[2] != 'p' && *argv[2] != 'c'){
+    	printf("La inicial del proceso debe ser:\n\t c (consumidor)\n\t p (productor)\n");
         exit(EXIT_FAILURE);
     }
     
@@ -97,6 +102,16 @@ int main (int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    if (Crear_Semaforo(rand(), tamanioBuffer, &sePuedeEscribir) == ERROR){
+        perror("Error creando el semaforo sePuedeEscribir");
+        exit(EXIT_FAILURE);
+    }
+
+    if(UpMultiple_Semaforo(sePuedeEscribir, tamanioBuffer, SEM_UNDO, active) == ERROR){
+    	perror("Error inicializando el semaforo sePuedeEscribir a 1");
+        exit(EXIT_FAILURE);
+    }
+
     tipo = padre;
     producto = '#';
 
@@ -113,34 +128,39 @@ int main (int argc, char *argv[]) {
 	    }
 	}
 
-	if (tipo == productor){
+	if (tipo == consumidor){
+		if (*argv[2] == 'p')
+			nanosleep((const struct timespec[]){{0, 30000000L}}, NULL);
+		i = 0;
+		while(true){
+			Down_Semaforo(sePuedeLeer, i, SEM_UNDO);
+			Down_Semaforo(mutex, i, SEM_UNDO);
+				printf("Consumidor lee \"%c\" en posición %d\n", buffer[i], i);
+			Up_Semaforo(mutex, i, SEM_UNDO);
+			Up_Semaforo(sePuedeEscribir, i, SEM_UNDO);
+			i++;
+			i = i % tamanioBuffer;
+		}
+	}else if (tipo == productor){
+		if (*argv[2] == 'c')
+			nanosleep((const struct timespec[]){{0, 30000000L}}, NULL);
+
 		producto = 'a';
 		i = 0;
 		while(true){
 			if (producto == 'z' + 1)
 				producto = '0';
-
 			if (producto == '9' + 1)
 				producto = 'a';
-			printf("Empieza Productor\n");
+			
+			Down_Semaforo(sePuedeEscribir, i, SEM_UNDO);
 			Down_Semaforo(mutex, i, SEM_UNDO);
 				buffer[i] = producto;
 				printf("Productor escribe \"%c\" en posición %d\n", producto, i);
-			Up_Semaforo(sePuedeLeer, i, SEM_UNDO);
 			Up_Semaforo(mutex, i, SEM_UNDO);
+			Up_Semaforo(sePuedeLeer, i, SEM_UNDO);
 			i++;
 			producto++;
-			i = i % tamanioBuffer;
-		}
-	}else if (tipo == consumidor){
-		i = 0;
-		while(true){
-			printf("Empieza Consumidor: %d\n", semctl(mutex, i, GETVAL, arg));
-			Down_Semaforo(mutex, i, SEM_UNDO);
-			Down_Semaforo(sePuedeLeer, i, SEM_UNDO);
-				printf("Consumidor lee \"%c\" en posición %d\n", buffer[i], i);
-			Up_Semaforo(mutex, i, SEM_UNDO);
-			i++;
 			i = i % tamanioBuffer;
 		}
 	}else /* PADRE*/ {
