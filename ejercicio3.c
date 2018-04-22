@@ -10,7 +10,7 @@
 
 #define FILEKEY "/bin/cat"
 
-typedef enum {padre, productor, consumidor} tipoProceso;
+typedef enum {productor, consumidor} tipoProceso;
 
 int mutex, sePuedeLeer, sePuedeEscribir;
 char* buffer;
@@ -112,7 +112,6 @@ int main (int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    tipo = padre;
     producto = '#';
 
     for(i = 0; i < tamanioBuffer; i++)
