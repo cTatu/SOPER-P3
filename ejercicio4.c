@@ -49,6 +49,12 @@ void* escribeFichero()
     return NULL;
 }
 
+void* leeFichero(void* descriptor)
+{
+
+    return NULL;
+}
+
 int main (int argc, char *argv[]) {
     pthread_t escribeAleatID;
 
