@@ -23,7 +23,6 @@
 
 #define FILEKEY "/bin/cat"	/*!< Fihcero cualquiera del sistema	*/
 
-#define NUM_PROC 2	/*!< Numero de procesos a instanciar	*/	
 
 /**
 * @brief Ejercicio 2 solucionado
@@ -83,14 +82,17 @@ void manejadorSIGUSR1(int s){
 /**
 * @brief Inicio del programa
 */
-int main(void) {
+int main(int argc, char *argv[]) {
     
-    int pid,i,status=-1;
+    int pid,i;
     Info* info;
     unsigned short array[1] = {1};
     char cadena[100];
+     int num_proc;
+     
+     srand(time(NULL));
       
-    Crear_Semaforo(SEMKEY, 1, &sem_id);
+    Crear_Semaforo(rand(), 1, &sem_id);
     info = Crear_Memoria_Compartida(FILEKEY, &id_zone, sizeof(Info));     
 
     if(signal(SIGUSR1, manejadorSIGUSR1) == SIG_ERR){
@@ -101,23 +103,20 @@ int main(void) {
 	info->id = 0;
     Crear_Semaforo(SEMKEY, 1, &sem_id);
     Inicializar_Semaforo(sem_id, array);   
-    for(i=0; i<NUM_PROC; i++){
+    
+    num_proc = atoi(argv[1]);
+    
+    for(i=0; i < num_proc; i++){
             if((pid=fork())<0) {
                 printf("Error haciendo fork\n");
                 exit(EXIT_FAILURE);
             } else if(pid==0) {
                 sleep(rand() % 10);
                 
-                info =  shmat(id_zone, (char*)0, IPC_CREAT | IPC_EXCL | SHM_R | SHM_W);
-                if(info == NULL){
-                    fprintf(stderr, "Error reserve shared memory \n");
-                    exit(EXIT_FAILURE);
-                }
-                
                 Down_Semaforo(sem_id, 0, SEM_UNDO);
                 
                 printf("Introduce una cadena: \n");
-		        /*fflush(stdin);*/
+
                 fgets(cadena, 255, stdin);
 		        cadena[strlen(cadena)-1] = 0;
 		        strcpy(info->nombre, cadena);
@@ -126,17 +125,14 @@ int main(void) {
                 kill(getppid(), SIGUSR1);
 		        Up_Semaforo(sem_id, 0, SEM_UNDO);
                 exit(EXIT_SUCCESS);
-                
-            } else {
-                
             }
     }
     
-    while(wait(&status)>0);
+    while(wait(NULL)>0);
 
-    if(Borrar_Memoria_Compartida(info, id_zone) == ERROR){
-	printf("Error eliminando la memoria compartida");
-    }
+    if(Borrar_Memoria_Compartida(info, id_zone) == ERROR)
+		printf("Error eliminando la memoria compartida");
+
     Borrar_Semaforo(sem_id);
     exit(EXIT_SUCCESS);
 }
