@@ -23,12 +23,12 @@ unsigned short numeroAleatorioRango(unsigned short extremoInferior,
 	*		numInferior = (1-1.0) * 5 = 0.0 * 5 = 0        numSuperior = 1.0 * 10 = 10
 	*       result = 0 + 10 = 10
 	*/
-	unsigned short numeroAleatorio = ((unsigned short) numInferior) + ((unsigned short) numSuperior);
+	unsigned short numeroAleatorio = (unsigned short) (numInferior + numSuperior);
 
 	return numeroAleatorio + 1;
 } 
 
-void* escribeFichero(void *vargp)
+void* escribeFichero()
 {
     FILE* file;
     unsigned short n;
@@ -50,12 +50,14 @@ void* escribeFichero(void *vargp)
 }
 
 int main (int argc, char *argv[]) {
-    pthread_t tid;
+    pthread_t escribeAleatID;
 
     srand(time(NULL));
 
-    pthread_create(&tid, NULL, escribeFichero, NULL);
-    pthread_join(tid, NULL);
+    /* Lanza el hilo */
+    pthread_create(&escribeAleatID, NULL, escribeFichero, NULL);
+    /* Le espera */
+    pthread_join(escribeAleatID, NULL);
 
     exit(EXIT_SUCCESS);
 }
