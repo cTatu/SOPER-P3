@@ -72,9 +72,33 @@ Salida:
  int: OK si todo fue correcto, ERROR en caso de error.
 ***************************************************************/
 int Up_Semaforo(int id, int num_sem, int undo);
-
+/***************************************************************
+Nombre: UpMultiple_Semaforo
+Descripcion: Sube todos los semaforos del array indicado
+por active.
+Entrada:
+ int semid: Identificador del semaforo.
+ int size: Numero de semaforos del array.
+ int undo: Flag de modo persistente pese a finalización
+abrupta.
+ int *active: Semaforos involucrados.
+Salida:
+int: OK si todo fue correcto, ERROR en caso de error.
+***************************************************************/
 int UpMultiple_Semaforo(int id,int size, int undo, int *active);
-
+/***************************************************************
+Nombre: DownMultiple_Semaforo
+Descripcion: Baja todos los semaforos del array indicado
+ por active.
+Entrada:
+ int semid: Identificador del semaforo.
+ int size: Numero de semaforos del array.
+ int undo: Flag de modo persistente pese a finalización
+abrupta.
+ int *active: Semaforos involucrados.
+Salida:
+int: OK si todo fue correcto, ERROR en caso de error.
+***************************************************************/
 int DownMultiple_Semaforo(int id,int size,int undo,int *active);
 
 

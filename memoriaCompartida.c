@@ -5,9 +5,20 @@
 
 #define KEY 1300
 
-char* Crear_Memoria_Compartida(char* path, int* id_zone, int size){					
+/**
+ * @brief Crea un segmento de memoria compartida
+ *
+ * Funcion que crea una zona de memoria compartida con el tamanio
+ * especificado en size.
+ * 
+ * @param path Nombre de un fichero del sistema para la generacion de claves
+ * @param id_zone El ID de la zona de memoria compartida que se va a crear
+ * @param size Cantidad de bytes que se va a reservar.
+ * @return Puntero a la zona de memoria o NULL si ya exite la zona o si ha tenido algun otro error.
+ */
+void* Crear_Memoria_Compartida(void* path, int* id_zone, int size){					
 
-    char* buffer;
+    void* buffer;
     int key = ftok(path, KEY);
     
     if (key == ERROR) {
@@ -22,9 +33,7 @@ char* Crear_Memoria_Compartida(char* path, int* id_zone, int size){
         return NULL;
     }
     
-    printf ("ID zone shared memory: %i\n", *id_zone);
-
-    buffer = shmat (*id_zone, (char*) 0, 0);
+    buffer = shmat (*id_zone, (void*) 0, 0);
     
     if (buffer == NULL)
         perror("Error reserve shared memory \n");	
@@ -32,8 +41,18 @@ char* Crear_Memoria_Compartida(char* path, int* id_zone, int size){
     return buffer;
 }
 
-int Borrar_Memoria_Compartida(char* buf, int id_zone){
-	if (shmdt ((char *)buf) == ERROR){
+/**
+ * @brief Borra un segmento de memoria compartida
+ *
+ * Borra el segmento de memoria identificado a traves del ID
+ * desacoplando antes el puntero.
+ * 
+ * @param buf Puntero de la memoria compartida que se va a desacoplar
+ * @param id_zone El ID de la zona de memoria compartida que se va a borrar
+ * @return OK o ERROR
+ */
+int Borrar_Memoria_Compartida(void* buf, int id_zone){
+	if (shmdt ((void *)buf) == ERROR){
         perror("Error with memory detach\n");
         return ERROR;
     }

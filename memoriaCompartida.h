@@ -10,8 +10,8 @@
 #include <errno.h>
 #include <sys/shm.h> 
 
-char* Crear_Memoria_Compartida(char* path, int* id_zone, int size);
+void* Crear_Memoria_Compartida(void* path, int* id_zone, int size);
 								
-int Borrar_Memoria_Compartida(char* buf, int id_zone);
+int Borrar_Memoria_Compartida(void* buf, int id_zone);
 
 #endif
