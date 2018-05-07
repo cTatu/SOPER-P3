@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/shm.h> 
+#include <unistd.h>
 
 void* Crear_Memoria_Compartida(void* path, int* id_zone, int size);
 								

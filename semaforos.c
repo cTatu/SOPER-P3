@@ -54,10 +54,10 @@ Salida:
 int: OK si todo fue correcto, ERROR en caso de error.
 ***************************************************************/
 int Borrar_Semaforo(int semid){
-    if (semctl(semid, 0, IPC_RMID) < 0)
-        return ERROR;
+if (semctl(semid, 0, IPC_RMID) < 0)
+    return ERROR;
 
-	return OK;
+return OK;
 }
 
 /***************************************************************

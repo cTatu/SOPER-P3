@@ -1,4 +1,4 @@
-FLAGS = -g -Wall -lpthread
+FLAGS = -g -Wno-misleading-indentation -Wall -lpthread
 EXE = ejercicio2solved ejercicio2planteado ejercicio3 ejercicio4 ejercicio5
 
 all: $(EXE)
